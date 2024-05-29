@@ -7,15 +7,22 @@ WORKDIR /app
 # Copy the app package and package-lock.json file
 COPY package*.json ./
 
+# Install node packages
+RUN npm install
+
 # Copy local directories to the current local directory of our docker image (/app)
 COPY ./src ./src
 COPY ./public ./public
 
-# Install node packages, install serve, build the app, and remove dependencies at the end
-RUN npm install \
-    && npm install -g serve \
-    && npm run build \
-    && rm -fr node_modules
+# Build the app
+RUN npm run build
+
+# Remove development dependencies
+RUN npm prune --production
+
+ENV NODE_ENV production
+
+USER node
 
 EXPOSE 3000
 
